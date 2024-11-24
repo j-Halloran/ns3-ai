@@ -1,6 +1,6 @@
 
 add_subdirectory(vr-app)
-
+find_package(GSL REQUIRED)
 build_lib_example(
         NAME ns3ai_multibss
         SOURCE_FILES
@@ -21,7 +21,7 @@ build_lib_example(
             ${libantenna}
             ${libbuildings}
             ${libmobility}
-            ${gsl_libraries}
+            ${GSL_LIBRARIES}
 )
 
 pybind11_add_module(ns3ai_multibss_py multi_bss_py.cc)

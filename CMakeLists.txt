@@ -70,39 +70,21 @@ set(gym_interface_hdrs
         model/gym-interface/cpp/ns3-ai-gym-env.h
         model/gym-interface/cpp/container.h
         model/gym-interface/cpp/spaces.h
+        model/gym-interface/cpp/messages.pb.h
+)
+
+# Add include directories
+include_directories(
+    ${CMAKE_CURRENT_SOURCE_DIR}/model/gym-interface/cpp
+    ${Protobuf_INCLUDE_DIRS}
 )
 
 build_lib(
         LIBNAME ai
         SOURCE_FILES ${msg_interface_srcs} ${gym_interface_srcs}
         HEADER_FILES ${msg_interface_hdrs} ${gym_interface_hdrs}
-        LIBRARIES_TO_LINK ${libcore} protobuf
+        LIBRARIES_TO_LINK ${libcore} ${Protobuf_LIBRARIES}
 )
-
-# protobuf_generate function is missing in some installations by package manager
-check_function_exists(protobuf_generate protobuf_generate_exists)
-if(${protobuf_generate_exists})
-    message(STATUS "protobuf_generate function found")
-else()
-    message(STATUS "protobuf_generate function not found -> use a local copy from ${CMAKE_CURRENT_SOURCE_DIR}/protobuf-generate.cmake")
-    include(${CMAKE_CURRENT_SOURCE_DIR}/protobuf-generate.cmake)
-endif()
-
-# Compile proto files
-add_library(proto-objects OBJECT "${CMAKE_CURRENT_SOURCE_DIR}/model/gym-interface/messages.proto")
-protobuf_generate(
-        TARGET proto-objects
-        IMPORT_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/model/gym-interface"
-        LANGUAGE cpp
-        PROTOC_OUT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/model/gym-interface/cpp"
-)
-protobuf_generate(
-        TARGET proto-objects
-        IMPORT_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/model/gym-interface"
-        LANGUAGE python
-        PROTOC_OUT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/model/gym-interface/py"
-)
-add_dependencies(${libai} proto-objects)
 
 # Build Gym msg binding module
 add_subdirectory(model/gym-interface/py)
